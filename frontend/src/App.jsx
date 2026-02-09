@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import SignIn from './SignIn'
 import './App.css'
+import { Routes, Route, Navigate } from "react-router-dom";
+import SignIn from "./SignIn";
+import Signup from "./SignUp";
 
-function App() {
+export default function App() {
   return (
-    <div>
-      <SignIn/>
-    </div>
+      <Routes>
+        {/* Using React Dom router to navigate between pages */} 
+        <Route path="/" element={<Navigate to="/signin" />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
   );
 }
-
-export default App;
