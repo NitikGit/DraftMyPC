@@ -45,9 +45,9 @@ export default function SignIn() {
             </label>
             <input
             type="email"
-            placeholder="you@example.com"
-            className="w-full rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-lime-400"/>
-        </div>
+            placeholder="example@gmail.com"
+            className="w-full rounded-lg px-4 py-3 pr-12 bg-zinc-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-400"/>
+       </div>
 
         <div>
             <label className="text-white text-sm font-medium block mb-2 text-left">
