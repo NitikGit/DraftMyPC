@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 export default function SignIn() {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="absolute top-0 left-0 right-0 p-6 flex items-center gap-3 border-b"style={{ borderColor: '#1e1d1d' }}>
@@ -48,13 +51,46 @@ export default function SignIn() {
 
         <div>
             <label className="text-white text-sm font-medium block mb-2 text-left">
-            Password
+              Password
             </label>
-            <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-lime-400"/>
-        </div>
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className="w-full rounded-lg px-4 py-3 pr-12 bg-zinc-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-400"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-lime-400"
+              >
+                {showPassword ? (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-9-7 0-1.042.387-2.042 1.075-2.925M6.6 6.6A9.956 9.956 0 0112 5c5 0 9 4 9 7 0 1.306-.627 2.418-1.7 3.4M15 12a3 3 0 01-3 3M3 3l18 18" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            <div className="text-right mt-2">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-lime-400 hover:text-lime-300"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+          </div>
 
           <button
         className="w-full bg-[#A3FF1A] text-black font-semibold rounded-lg py-3 transition-all duration-300 
