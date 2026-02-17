@@ -8,15 +8,6 @@ CORS(app)
 
 bcrypt = Bcrypt(app)
 
-# MySQL connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="nitik=007",  
-        database="draftmypc"
-    )
-
 @app.route("/")
 def home():
     return "Backend Connected!"
