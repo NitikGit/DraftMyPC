@@ -1,9 +1,9 @@
 import './App.css'
 import { Routes, Route, Navigate } from "react-router-dom";
-import SignIn from "./SignIn";
-import Signup from "./SignUp";
-import Dashboard from "./Dashboard";
-import Builder from "./Builder";
+import SignIn from "./pages/SignIn";
+import Signup from "./pages/SignUp";
+import Dashboard from "./pages/Dashboard";
+import Builder from "./pages/Builder";
 import { Toaster } from "sonner";
 
 export default function App() {
