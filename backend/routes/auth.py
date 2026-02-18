@@ -5,6 +5,7 @@ from models.user_model import create_user, get_user_by_email
 auth_routes = Blueprint("auth", __name__)
 bcrypt = Bcrypt()
 
+# Route for user registration
 @auth_routes.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -16,16 +17,18 @@ def register():
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
     try:
+        # Save user to database
         create_user(username, email, hashed_password)
         return jsonify({"message": "User registered successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-
+# Route for user login
 @auth_routes.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
 
+    # Extract login credentials
     email = data["email"]
     password = data["password"]
 

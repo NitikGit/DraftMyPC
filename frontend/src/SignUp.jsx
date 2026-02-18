@@ -1,8 +1,40 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+    // Sign up API  
+  const handleSignup = async () => {
+  const response = await fetch("http://127.0.0.1:5000/register", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username,
+      email,
+      password,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (response.ok) {
+    alert("Account created!");
+    navigate("/signin");
+  } else {
+    alert(data.error);
+  }
+};
 
   return (
      <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -46,6 +78,8 @@ export default function Signup() {
             </label>
             <input
             type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="eg: John Doe"
             className="w-full rounded-lg px-4 py-3 pr-12 bg-zinc-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-400"/>
           </div>
@@ -56,6 +90,8 @@ export default function Signup() {
             </label>
             <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="example@gmail.com"
             className="w-full rounded-lg px-4 py-3 pr-12 bg-zinc-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-400"/>
         </div>
@@ -68,6 +104,8 @@ export default function Signup() {
 
             <div className="relative">
               <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 className="w-full rounded-lg px-4 py-3 pr-12 bg-zinc-800 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-lime-400"
@@ -96,7 +134,7 @@ export default function Signup() {
 
           </div>
 
-          <button
+          <button onClick={handleSignup}
             className="w-full bg-[#A3FF1A] text-black font-semibold rounded-lg py-3 transition-all duration-300 hover:shadow-[0_0_20px_#A3FF1A] hover:scale-[1.02]"
           >
             Create Account
