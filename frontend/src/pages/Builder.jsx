@@ -35,20 +35,20 @@ const categoryIcons = {
   motherboard: Zap,
   ram: MemoryStick,
   storage: HardDrive,
-  psu: Box,
+  psu: Zap,
   case: Box,
   cooler: Fan
 };
 
 const categories = [
   { id: "cpu", name: "Processor", required: true },
-  { id: "gpu", name: "Graphics Card", required: true },
+  { id: "gpu", name: "Graphic Card", required: true },
   { id: "motherboard", name: "Motherboard", required: true },
   { id: "ram", name: "RAM", required: true },
   { id: "storage", name: "Storage", required: true },
   { id: "psu", name: "Power Supply", required: true },
   { id: "case", name: "Case", required: false },
-  { id: "cooler", name: "Cooling", required: false },
+  { id: "cooler", name: "CPU Cooler", required: false },
 ];
 
 const Builder = () => {
@@ -71,7 +71,7 @@ const Builder = () => {
     return Object.values(selectedComponents).reduce((sum, comp) => sum + (comp?.price || 0), 0);
   }, [selectedComponents]);
 
-  // Calculate compatibility score (simplified)
+  // Calculate compatibility score
   const compatibilityScore = useMemo(() => {
     const selected = Object.values(selectedComponents).filter(Boolean);
     if (selected.length === 0) return 0;
@@ -150,7 +150,6 @@ const handleRemoveComponent = (category) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-glass-border">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -275,7 +274,6 @@ const handleRemoveComponent = (category) => {
       </nav>
 
       <div className="pt-20 flex">
-        {/* Left Sidebar - Categories */}
         <aside className="w-72 border-r border-glass-border bg-card/30 p-6 overflow-y-auto h-[calc(100vh-5rem)] sticky top-20">
           <h3 className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wide">
             Components
@@ -290,8 +288,8 @@ const handleRemoveComponent = (category) => {
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
                   className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-300 ${
-                    selectedCategory === category.id
-                      ? "bg-lime/10 border border-lime/30 text-lime"
+                   selectedCategory === category.id
+                      ? "bg-lime/10 border border-lime/40 text-lime shadow-[0_0_40px_hsl(83_100%_36%/0.35)]"
                       : isSelected
                       ? "bg-secondary border border-lime/20 text-foreground"
                       : "bg-secondary/50 border border-glass-border text-foreground hover:border-lime/20 hover:bg-secondary"
@@ -314,7 +312,6 @@ const handleRemoveComponent = (category) => {
           </div>
         </aside>
 
-        {/* Main Content - Component Selection */}
         <main className="flex-1 p-8">
           <div className="max-w-5xl mx-auto">
             <div className="mb-8">
@@ -362,7 +359,6 @@ const handleRemoveComponent = (category) => {
                         ))}
                       </div>
                       
-                      {/* Retailer Links */}
                       <div className="flex flex-wrap gap-2">
                       {component.retailerLinks.map((link, i) => (
                         <a
@@ -408,7 +404,6 @@ const handleRemoveComponent = (category) => {
           </div>
         </main>
 
-        {/* Right Sidebar - Build Summary */}
         <aside className="w-80 border-l border-glass-border bg-card/30 p-6 overflow-y-auto h-[calc(100vh-5rem)] sticky top-20">
           <h3 className="text-lg font-bold text-foreground mb-4">Your Build</h3>
           
