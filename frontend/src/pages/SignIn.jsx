@@ -1,10 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth"; 
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+  const { login } = useAuth(); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -24,6 +26,8 @@ export default function SignIn() {
   const data = await response.json();
 
   if (response.ok) {
+    // store user so Builder can read it
+      login(data.user);
     if (data.role === "admin") {
       navigate("/admin");
     } else {

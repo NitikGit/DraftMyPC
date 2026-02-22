@@ -97,7 +97,7 @@ const handleRemoveComponent = (category) => {
   const handleSaveBuild = async () => {
     if (!user) {
       toast.error("Please sign in to save builds");
-      navigate("/auth");
+      navigate("/signin");
       return;
     }
 
@@ -219,7 +219,7 @@ const handleRemoveComponent = (category) => {
     <Button
       variant="link"
       className="p-0 h-auto"
-      onClick={() => navigate("/auth")}
+      onClick={() => navigate("/signin")}
     >
       Sign in
     </Button>{" "}
@@ -227,13 +227,6 @@ const handleRemoveComponent = (category) => {
   </p>
 ) : (
   <p className="text-sm text-muted-foreground">
-    <Button
-      variant="link"
-      className="p-0 h-auto text-destructive"
-      onClick={logout}
-    >
-      Logout
-    </Button>
   </p>
 )}
 
@@ -268,19 +261,19 @@ const handleRemoveComponent = (category) => {
                   <div className="text-center py-4">
                     <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground mb-4">Sign in to save your builds</p>
-                    <Button onClick={() => navigate('/auth')}>Sign In</Button>
+                    <Button onClick={() => navigate('/signin')}>Sign In</Button>
                   </div>
                 )}
               </DialogContent>
             </Dialog>
 
             {user ? (
-              <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/signin')}>
                 <User className="w-4 h-4 mr-2" />
                 Profile
               </Button>
             ) : (
-              <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
+              <Button variant="default" size="sm" onClick={() => navigate('/signin')}>
                 Sign In
               </Button>
             )}
