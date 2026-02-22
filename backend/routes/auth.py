@@ -34,10 +34,17 @@ def login():
 
     user = get_user_by_email(email)
 
+    #to store user id in session
     if user and bcrypt.check_password_hash(user["password"], password):
         return jsonify({
             "message": "Login successful",
-            "role": user["role"]
+            "user": {
+                "id": user["id"],
+                "username": user["username"],
+                "email": user["email"],
+                "role": user.get("role", "user"),
+            }
         }), 200
+
 
     return jsonify({"error": "Invalid credentials"}), 401
