@@ -268,7 +268,7 @@ const handleRemoveComponent = (category) => {
             </Dialog>
 
             {user ? (
-              <Button variant="ghost" size="sm" onClick={() => navigate('/signin')}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>
                 <User className="w-4 h-4 mr-2" />
                 Profile
               </Button>
