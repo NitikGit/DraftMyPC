@@ -53,7 +53,7 @@ const categories = [
 
 const Builder = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+const { user, logout } = useAuth();
   const { builds, saveBuild, deleteBuild } = useSavedBuilds();
   const [selectedCategory, setSelectedCategory] = useState("cpu");
   const [selectedComponents, setSelectedComponents] = useState({});
@@ -214,14 +214,29 @@ const handleRemoveComponent = (category) => {
                     </>
                   )}
                   
-                  {!user && (
-                    <p className="text-sm text-muted-foreground">
-                      <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/auth')}>
-                        Sign in
-                      </Button>
-                      {" "}to access your saved builds
-                    </p>
-                  )}
+                  {!user ? (
+  <p className="text-sm text-muted-foreground">
+    <Button
+      variant="link"
+      className="p-0 h-auto"
+      onClick={() => navigate("/auth")}
+    >
+      Sign in
+    </Button>{" "}
+    to access your saved builds
+  </p>
+) : (
+  <p className="text-sm text-muted-foreground">
+    <Button
+      variant="link"
+      className="p-0 h-auto text-destructive"
+      onClick={logout}
+    >
+      Logout
+    </Button>
+  </p>
+)}
+
                 </div>
               </DialogContent>
             </Dialog>
