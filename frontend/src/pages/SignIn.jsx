@@ -28,7 +28,10 @@ export default function SignIn() {
   if (response.ok) {
     // store user so Builder can read it
       login(data.user);
-    if (data.role === "admin") {
+      // saving role  
+        localStorage.setItem("role", data.user.role);
+
+    if (data.user.role === "admin") {
       navigate("/admin");
     } else {
       navigate("/dashboard");
