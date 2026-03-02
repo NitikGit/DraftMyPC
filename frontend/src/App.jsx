@@ -9,6 +9,7 @@ import CompareBuilds from "./pages/CompareBuilds";
 import ThreeDBuilder from "./pages/ThreeDBuilder";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./pages/ProtectedRoutes";
 
 import { Toaster } from "sonner";
 
@@ -25,7 +26,10 @@ export default function App() {
         <Route path="/compare-builds" element={<CompareBuilds />} />
         <Route path="/3d-builder" element={<ThreeDBuilder />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+        {/* Admin route protected by role */}
+        <Route path="/admin" element={<ProtectedRoute roleRequired="admin"><AdminDashboard /></ProtectedRoute>
+  }
+/>
 
       </Routes>
 
