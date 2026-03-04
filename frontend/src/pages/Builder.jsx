@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { pcComponents } from "@/data/pcComponents";
+import { useEffect } from "react";
 import { prebuiltTemplates } from "@/data/prebuiltTemplates";
 import { useSavedBuilds } from "@/hooks/useSavedBuilds";
 import { useAuth } from "@/hooks/useAuth";
@@ -53,18 +53,29 @@ const categories = [
 
 const Builder = () => {
   const navigate = useNavigate();
-const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { builds, saveBuild, deleteBuild } = useSavedBuilds();
+  const [pcComponents, setPcComponents] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("cpu");
   const [selectedComponents, setSelectedComponents] = useState({});
   const [buildName, setBuildName] = useState("");
+  // Fetch components from backend 
+  useEffect(() => {
+  fetch("http://127.0.0.1:5000/components")
+    .then(res => res.json())
+    .then(data => {
+      console.log("components:", data);
+      setPcComponents(data);
+    })
+    .catch(err => console.error(err));
+}, []);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [loadDialogOpen, setLoadDialogOpen] = useState(false);
 
   // Filter components by selected category
   const categoryComponents = useMemo(() => {
-    return pcComponents.filter(c => c.category === selectedCategory);
-  }, [selectedCategory]);
+  return pcComponents.filter(c => c.category === selectedCategory);
+}, [selectedCategory, pcComponents]);
 
   // Calculate total cost
   const totalCost = useMemo(() => {
