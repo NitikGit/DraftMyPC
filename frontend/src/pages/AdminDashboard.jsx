@@ -1,6 +1,76 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 export default function Admin() {
+
+  const [components, setComponents] = useState([]);
+
+  const [form, setForm] = useState({
+  name: "",
+  brand: "",
+  model: "",
+  category: "cpu",
+  tier: "budget",
+  price: "",
+  imageUrl: "",
+  bestFor: "",
+  specs: "{}"
+  });
+
+  //Get Components API
+  useEffect(() => {
+  fetch("http://127.0.0.1:5000/components")
+  .then(res => res.json())
+  .then(data => setComponents(data));
+  }, []);
+
+  //Handle Entry
+  const handleChange = (e) => {
+  setForm({
+  ...form,
+  [e.target.name]: e.target.value
+  });
+  };
+
+  //API Add Component
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const newComponent = {
+    id: Date.now().toString(),
+    name: form.name,
+    brand: form.brand,
+    model: form.model,
+    category: form.category,
+    performanceTier: form.tier,
+    price: Number(form.price),
+    imageUrl: form.imageUrl,
+    bestFor: form.bestFor.split(",").map(x => x.trim()),
+    specs: JSON.parse(form.specs)
+  };
+
+  await fetch("http://127.0.0.1:5000/components", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(newComponent)
+  });
+
+  window.location.reload();
+
+  };
+
+  //API Delete Component
+  const deleteComponent = async (id) => {
+
+  await fetch(`http://127.0.0.1:5000/components/${id}`, {
+    method: "DELETE"
+  });
+
+  setComponents(components.filter(c => c.id !== id));
+
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
 
