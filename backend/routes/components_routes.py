@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from db import get_db_connection
 
 components_routes = Blueprint("components_routes", __name__)
@@ -39,6 +39,7 @@ def get_components():
 # API to set new components in Admin dashboard page
 @components_routes.route("/components", methods=["POST"])
 def add_component():
+
     data = request.json
 
     conn = get_db_connection()
@@ -46,7 +47,7 @@ def add_component():
 
     query = """
     INSERT INTO components
-    (id,name,category,brand,model,price,image_url,performance_tier,specs,best_for)
+    (id,name,category,brand,model,price,performance_tier,image_url,specs,best_for)
     VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
     """
 
@@ -57,8 +58,8 @@ def add_component():
         data["brand"],
         data["model"],
         data["price"],
-        data["imageUrl"],
         data["performanceTier"],
+        data["imageUrl"],
         json.dumps(data["specs"]),
         json.dumps(data["bestFor"])
     ))

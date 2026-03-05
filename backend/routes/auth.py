@@ -24,12 +24,9 @@ def register():
         return jsonify({"error": str(e)}), 400
 
 # Route for user login
-@auth_routes.route("/login", methods=["POST", "OPTIONS"])
+@auth_routes.route("/login", methods=["POST"])
 def login():
-
-    if request.method == "OPTIONS":
-        return jsonify({"message": "OK"}), 200
-
+    
     data = request.get_json()
 
 # Extract email and password from request
