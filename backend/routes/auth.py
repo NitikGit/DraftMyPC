@@ -24,17 +24,20 @@ def register():
         return jsonify({"error": str(e)}), 400
 
 # Route for user login
-@auth_routes.route("/login", methods=["POST"])
+@auth_routes.route("/login", methods=["POST", "OPTIONS"])
 def login():
+
+    if request.method == "OPTIONS":
+        return jsonify({"message": "OK"}), 200
+
     data = request.get_json()
 
-    # Extract login credentials
+# Extract email and password from request
     email = data["email"]
     password = data["password"]
 
     user = get_user_by_email(email)
 
-    #to store user id in session
     if user and bcrypt.check_password_hash(user["password"], password):
         return jsonify({
             "message": "Login successful",
@@ -45,6 +48,5 @@ def login():
                 "role": user.get("role", "user"),
             }
         }), 200
-
 
     return jsonify({"error": "Invalid credentials"}), 401

@@ -8,8 +8,8 @@ from routes.components_routes import components_routes
 
 app = Flask(__name__)
 
-# allow frontend
-CORS(app)
+# Enable CORS for ALL routes
+CORS(app, supports_credentials=True)
 
 bcrypt = Bcrypt(app)
 
