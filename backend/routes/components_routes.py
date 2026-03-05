@@ -69,3 +69,18 @@ def add_component():
     conn.close()
 
     return jsonify({"message": "Component added"})
+
+# API to delete components in Admin dashboard
+@components_routes.route("/components/<component_id>", methods=["DELETE"])
+def delete_component(component_id):
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM components WHERE id=%s", (component_id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Component deleted"})

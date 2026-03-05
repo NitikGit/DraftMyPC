@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 export default function Admin() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
