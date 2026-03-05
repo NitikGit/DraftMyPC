@@ -5,6 +5,7 @@ from db import get_db_connection
 components_routes = Blueprint("components_routes", __name__)
 
 @components_routes.route("/components", methods=["GET"])
+# API to get componenets for builder page 
 def get_components():
 
     conn = get_db_connection()
@@ -34,3 +35,37 @@ def get_components():
     conn.close()
 
     return jsonify(components)
+
+# API to set new components in Admin dashboard page
+@components_routes.route("/components", methods=["POST"])
+def add_component():
+    data = request.json
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+    INSERT INTO components
+    (id,name,category,brand,model,price,image_url,performance_tier,specs,best_for)
+    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+    """
+
+    cursor.execute(query, (
+        data["id"],
+        data["name"],
+        data["category"],
+        data["brand"],
+        data["model"],
+        data["price"],
+        data["imageUrl"],
+        data["performanceTier"],
+        json.dumps(data["specs"]),
+        json.dumps(data["bestFor"])
+    ))
+
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Component added"})
