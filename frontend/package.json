@@ -31,6 +31,7 @@
     "@react-three/fiber": "^9.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "drei": "^2.2.21",
     "lucide-react": "^0.574.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

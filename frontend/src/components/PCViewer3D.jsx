@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, useGLTF } from "@react-three/drei"
-import { Suspense, useRef } from "react"
+import { Environment } from "@react-three/drei"
+import { Suspense, useRef, useEffect } from "react"
 
 function Model({ path, scale=1, position=[0,0,0], rotation=[0,0,0] }) {
   const { scene } = useGLTF(path)
@@ -18,11 +19,26 @@ function Model({ path, scale=1, position=[0,0,0], rotation=[0,0,0] }) {
 function AnimatedGPU({ visible }) {
   const { scene } = useGLTF("/models/gpu.glb")
   const ref = useRef()
+  const fans = useRef([])
+
+  useEffect(() => {
+    fans.current = []
+    scene.traverse((child) => {
+      if (child.name.toLowerCase().includes("fan")) {
+        fans.current.push(child)
+      }
+    })
+  }, [scene])
 
   useFrame(() => {
     if (!ref.current) return
-    const targetY = visible ? 0.7 : 2
+
+    const targetY = visible ? 0.7 : 1.5
     ref.current.position.y += (targetY - ref.current.position.y) * 0.05
+
+    fans.current.forEach((fan) => {
+      fan.rotation.z += 0.2
+    })
   })
 
   return (
@@ -30,10 +46,12 @@ function AnimatedGPU({ visible }) {
       ref={ref}
       object={scene.clone()}
       scale={1.1}
-      position={[0.5,2,0]}
+      position={[0.5,1.5,0]}
     />
   )
 }
+
+
 
 function GlassPanel({ open }) {
   const ref = useRef()
@@ -62,6 +80,7 @@ return(
 
 <Canvas camera={{position:[4,3,6],fov:45}}>
 
+<Environment preset="city" />
 <ambientLight intensity={0.8}/>
 <directionalLight position={[5,5,5]} intensity={2}/>
 
@@ -72,8 +91,7 @@ return(
 </>
 )}
 
-<Suspense fallback={null}>
-
+<Suspense fallback={<mesh><boxGeometry/><meshBasicMaterial/></mesh>}>
 {selectedParts.case && (
 <Model path="/models/case.glb" scale={2}/>
 )}
@@ -124,8 +142,7 @@ position={[0,-0.7,0.8]}
 
 <GlassPanel open={glassPanel}/>
 
-<OrbitControls enablePan={false}/>
-
+<OrbitControls enablePan={false} autoRotate autoRotateSpeed={0.5}/>
 </Canvas>
 
 )
