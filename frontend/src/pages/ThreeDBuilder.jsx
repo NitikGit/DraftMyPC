@@ -71,10 +71,10 @@ const selectedParts = {
         <main className="flex-1 p-6">
           <Card className="bg-card border-glass-border h-full relative overflow-hidden">
             <PCViewer3D
+              selectedParts={selectedParts}
               rgbEnabled={rgbEnabled}
               glassPanel={glassPanel}
               caseColor={caseColor}
-              selectedParts={selectedParts}
               />
             
             <div className="absolute bottom-6 left-6 flex gap-2">
