@@ -3,7 +3,7 @@ import { OrbitControls, Environment, useGLTF } from "@react-three/drei"
 import { Suspense, useMemo, useEffect, useRef } from "react"
 import * as THREE from "three"
 
-function FullPC({ selectedParts, caseColor }) {
+function FullPC({ selectedParts, caseColor, glassPanel }) {
 
   const { scene } = useGLTF("/models/pc_full.glb")
 
@@ -21,17 +21,25 @@ function FullPC({ selectedParts, caseColor }) {
 
       const name = child.name
       const mat = child.material?.name
-
-      //default visible
-      child.visible = true
-
+      
       //color case
-      if (mat === "Case" || mat === "material_15") {
-        if (caseColor) {
-          child.material = child.material.clone()
-          child.material.color.set(caseColor)
-        }
-        return
+      if (
+  ["Case","material_15"].includes(mat) &&
+  ["Object_65","Object_67","Object_68","Object_70","Object_72"].includes(name)
+){
+  child.visible = true
+
+  if (caseColor) {
+    child.material = child.material.clone()
+    child.material.color.set(caseColor)
+  }
+
+  return
+}
+
+        // GLASS PANEL
+      if(name === "Object_70"){
+        child.visible = glassPanel
       }
 
       // hide components if not selected
@@ -62,7 +70,7 @@ function FullPC({ selectedParts, caseColor }) {
 
     })
 
-  }, [model, selectedParts, caseColor])
+  }, [model, selectedParts, caseColor, glassPanel])
 
   useFrame(() => {
     fanMeshes.current.forEach(mesh => {
@@ -92,17 +100,18 @@ export default function PCViewer3D({
 
       <color attach="background" args={["#202020"]} />
 
-      <Environment preset="city"/>
+      <Environment preset="studio"/>
 
       <ambientLight intensity={0.8}/>
       <directionalLight position={[5,5,5]} intensity={2}/>
 
       {rgbEnabled && (
-        <>
-          <pointLight color="cyan" intensity={2} position={[-1,1,1]}/>
-          <pointLight color="magenta" intensity={2} position={[1,1,1]}/>
-        </>
-      )}
+      <>
+        <pointLight color="cyan" intensity={8} position={[0.2,0.3,0.2]} />
+        <pointLight color="magenta" intensity={8} position={[-0.2,0.2,0]} />
+        <pointLight color="blue" intensity={6} position={[0,0.1,-0.2]} />
+      </>
+    )}
 
       <Suspense fallback={null}>
         <FullPC
