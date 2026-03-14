@@ -3,7 +3,6 @@ import { OrbitControls, Environment, useGLTF } from "@react-three/drei"
 import { Suspense, useMemo, useEffect, useRef } from "react"
 import * as THREE from "three"
 
-
 const PART_MAP = {
 
   cpu:["Object_4","Object_5","Object_6"],
@@ -27,97 +26,118 @@ const PART_MAP = {
 
   psu:["Object_58","Object_60"],
 
-  fans:["Object_78","Object_79"]
+  fans:[
+    "Object_78","Object_79","Object_20",
+    "Object_74","Object_76","Object_83","Object_89"
+  ],
 
+  storage:[
+    "Object_46","Object_47",
+    "Object_53","Object_54",
+    "Object_55","Object_56"
+  ],
+
+  cooler:[
+    "Object_16","Object_18",
+    "Object_62","Object_63"
+  ],
+
+  case:[
+    "Object_65","Object_67",
+    "Object_68","Object_70",
+    "Object_72","Object_81",
+    "Object_87"
+  ]
 }
 
-
-function FullPC({ selectedParts }){
+function FullPC({ selectedParts, caseColor, glassPanel }){
 
   const { scene } = useGLTF("/models/pc_full.glb")
 
-  const model = useMemo(()=>scene.clone(),[scene, selectedParts])
+  const model = useMemo(()=>scene.clone(),[scene])
 
-  const gpuMeshes = useRef([])
-  const ramMeshes = useRef([])
   const fanMeshes = useRef([])
 
-useEffect(()=>{
+  useEffect(()=>{
 
-  gpuMeshes.current = []
-  ramMeshes.current = []
-  fanMeshes.current = []
+    fanMeshes.current = []
 
-  model.traverse((child)=>{
+    model.traverse((child)=>{
 
-    if(!child.isMesh) return
+      if(!child.isMesh) return
 
-    const name = child.name
+      const name = child.name
 
-    // hide everything first
-    child.visible = false
+      child.visible = false
 
-    if(PART_MAP.cpu.includes(name)){
-      child.visible = !!selectedParts.cpu
-    }
+      // CASE always visible
+      if(PART_MAP.case.includes(name)){
+        child.visible = true
 
-    if(PART_MAP.motherboard.includes(name)){
-      child.visible = !!selectedParts.motherboard
-    }
+        // apply case color
+        child.material = child.material.clone()
+        child.material.color = new THREE.Color(caseColor)
+      }
 
-    if(PART_MAP.psu.includes(name)){
-      child.visible = !!selectedParts.psu
-    }
+      // glass panel toggle
+      if(name === "Object_70" || name === "Object_72"){
+        child.visible = glassPanel
+      }
 
-    if(PART_MAP.gpu.includes(name)){
-      child.visible = !!selectedParts.gpu
-      gpuMeshes.current.push(child)
-    }
+      if(PART_MAP.cpu.includes(name))
+        child.visible = !!selectedParts.cpu
 
-    if(PART_MAP.ram.includes(name)){
-      child.visible = !!selectedParts.ram
-      ramMeshes.current.push(child)
-    }
+      if(PART_MAP.motherboard.includes(name))
+        child.visible = !!selectedParts.motherboard
 
-    if(PART_MAP.fans.includes(name)){
-      child.visible = !!selectedParts.fans
-      fanMeshes.current.push(child)
-    }
+      if(PART_MAP.psu.includes(name))
+        child.visible = !!selectedParts.psu
 
-  })
+      if(PART_MAP.gpu.includes(name))
+        child.visible = !!selectedParts.gpu
 
-},[model,selectedParts])
+      if(PART_MAP.ram.includes(name))
+        child.visible = !!selectedParts.ram
+
+      if(PART_MAP.storage.includes(name))
+        child.visible = !!selectedParts.storage
+
+      if(PART_MAP.cooler.includes(name))
+        child.visible = !!selectedParts.cooler
+
+      if(PART_MAP.fans.includes(name)){
+        child.visible = !!selectedParts.fans
+        fanMeshes.current.push(child)
+      }
+
+    })
+
+  },[model, selectedParts, caseColor, glassPanel])
 
 
   useFrame(()=>{
     fanMeshes.current.forEach(mesh=>{
-
-      if(selectedParts.fans)
-        mesh.rotation.z += 0.25
-
+      mesh.rotation.z += 0.25
     })
-
   })
 
 
   return (
     <primitive
-    object={model}
-    scale={1.8}
-    position={[0,-1.2,0]}
-    rotation={[0, Math.PI, 0]}
+      object={model}
+      scale={1.8}
+      position={[0,-1.2,0]}
+      rotation={[0, Math.PI, 0]}
     />
   )
-
 }
 
 
-
 export default function PCViewer3D({
-
   selectedParts,
-  rgbEnabled
-
+  rgbEnabled,
+  caseColor,
+  glassPanel
 }){
 
   return(
@@ -137,13 +157,17 @@ export default function PCViewer3D({
       )}
 
       <Suspense fallback={null}>
-        <FullPC selectedParts={selectedParts}/>
+        <FullPC
+          selectedParts={selectedParts}
+          caseColor={caseColor}
+          glassPanel={glassPanel}
+        />
       </Suspense>
 
       <OrbitControls
-      enablePan={false}
-      enableDamping
-      dampingFactor={0.05}
+        enablePan={false}
+        enableDamping
+        dampingFactor={0.05}
       />
 
     </Canvas>
@@ -151,4 +175,5 @@ export default function PCViewer3D({
   )
 
 }
+//pre load the 3d asset for better performance when user navigates to the 3D viewer
 useGLTF.preload("/models/pc_full.glb")
