@@ -13,6 +13,7 @@ import {
   Maximize2,
   Download
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const ThreeDBuilder = () => {
   const navigate = useNavigate();
@@ -28,15 +29,17 @@ const ThreeDBuilder = () => {
     { id: "blue", name: "Blue", hex: "#2563EB" },
   ];
 
-  const [selectedParts] = useState({
-case:true,
-motherboard:true,
-gpu:true,
-ram:true,
-cooler:true,
-fans:true,
-psu:true
-})
+const location = useLocation()
+const rawParts = location.state?.selectedComponents || {}
+
+const selectedParts = {
+  cpu: !!rawParts.cpu,
+  gpu: !!rawParts.gpu,
+  ram: !!rawParts.ram,
+  motherboard: !!rawParts.motherboard,
+  psu: !!rawParts.psu,
+  fans: !!rawParts.fans
+}
 
 
   return (

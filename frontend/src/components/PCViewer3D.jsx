@@ -36,66 +36,60 @@ function FullPC({ selectedParts }){
 
   const { scene } = useGLTF("/models/pc_full.glb")
 
-  const model = useMemo(()=>scene.clone(),[scene])
+  const model = useMemo(()=>scene.clone(),[scene, selectedParts])
 
   const gpuMeshes = useRef([])
   const ramMeshes = useRef([])
   const fanMeshes = useRef([])
 
-  useEffect(()=>{
+useEffect(()=>{
 
-    gpuMeshes.current = []
-    ramMeshes.current = []
-    fanMeshes.current = []
+  gpuMeshes.current = []
+  ramMeshes.current = []
+  fanMeshes.current = []
 
-    model.traverse((child)=>{
+  model.traverse((child)=>{
 
-      if(!child.isMesh) return
+    if(!child.isMesh) return
 
-      const name = child.name
+    const name = child.name
 
-      if(PART_MAP.gpu.includes(name))
-        gpuMeshes.current.push(child)
+    // hide everything first
+    child.visible = false
 
-      if(PART_MAP.ram.includes(name))
-        ramMeshes.current.push(child)
+    if(PART_MAP.cpu.includes(name)){
+      child.visible = !!selectedParts.cpu
+    }
 
-      if(PART_MAP.fans.includes(name))
-        fanMeshes.current.push(child)
+    if(PART_MAP.motherboard.includes(name)){
+      child.visible = !!selectedParts.motherboard
+    }
 
-      // visibility control
-      if(PART_MAP.cpu.includes(name))
-        child.visible = selectedParts.cpu
+    if(PART_MAP.psu.includes(name)){
+      child.visible = !!selectedParts.psu
+    }
 
-      if(PART_MAP.motherboard.includes(name))
-        child.visible = selectedParts.motherboard
+    if(PART_MAP.gpu.includes(name)){
+      child.visible = !!selectedParts.gpu
+      gpuMeshes.current.push(child)
+    }
 
-      if(PART_MAP.psu.includes(name))
-        child.visible = selectedParts.psu
+    if(PART_MAP.ram.includes(name)){
+      child.visible = !!selectedParts.ram
+      ramMeshes.current.push(child)
+    }
 
-    })
+    if(PART_MAP.fans.includes(name)){
+      child.visible = !!selectedParts.fans
+      fanMeshes.current.push(child)
+    }
 
-  },[model,selectedParts])
+  })
+
+},[model,selectedParts])
 
 
   useFrame(()=>{
-
-    gpuMeshes.current.forEach(mesh=>{
-
-      const target = selectedParts.gpu ? 0 : -1.5
-      mesh.position.x = THREE.MathUtils.lerp(mesh.position.x,target,0.08)
-
-    })
-
-
-    ramMeshes.current.forEach(mesh=>{
-
-      const target = selectedParts.ram ? 0 : 0.8
-      mesh.position.y = THREE.MathUtils.lerp(mesh.position.y,target,0.08)
-
-    })
-
-
     fanMeshes.current.forEach(mesh=>{
 
       if(selectedParts.fans)
@@ -108,9 +102,10 @@ function FullPC({ selectedParts }){
 
   return (
     <primitive
-      object={model}
-      scale={1}
-      position={[0,-0.6,0]}
+    object={model}
+    scale={1.8}
+    position={[0,-1.2,0]}
+    rotation={[0, Math.PI, 0]}
     />
   )
 
@@ -127,7 +122,7 @@ export default function PCViewer3D({
 
   return(
 
-    <Canvas camera={{position:[4,3,6],fov:45}}>
+    <Canvas camera={{position:[3,2,4],fov:45}}>
 
       <Environment preset="city"/>
 
@@ -146,9 +141,9 @@ export default function PCViewer3D({
       </Suspense>
 
       <OrbitControls
-        enablePan={false}
-        autoRotate
-        autoRotateSpeed={0.4}
+      enablePan={false}
+      enableDamping
+      dampingFactor={0.05}
       />
 
     </Canvas>
@@ -156,3 +151,4 @@ export default function PCViewer3D({
   )
 
 }
+useGLTF.preload("/models/pc_full.glb")

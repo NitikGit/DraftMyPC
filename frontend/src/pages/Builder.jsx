@@ -487,12 +487,14 @@ const handleRemoveComponent = (category) => {
                 NPR {totalCost.toLocaleString()}
               </span>
             </div>
-            <Button 
-              variant="hero" 
-              className="w-full" 
+              <Button 
+              variant="hero"
+              className="w-full"
               size="lg"
-              onClick={() => navigate("/3d-builder")}
-            >
+              onClick={() =>
+              navigate("/3d-builder", { state: { selectedComponents } })
+              }
+              > 
               View 3D Preview
               <ChevronRight className="w-4 h-4" />
             </Button>
