@@ -1,127 +1,158 @@
 import { Canvas, useFrame } from "@react-three/fiber"
-import { OrbitControls, useGLTF, Environment } from "@react-three/drei"
-import { Suspense, useEffect, useMemo, useRef } from "react"
+import { OrbitControls, Environment, useGLTF } from "@react-three/drei"
+import { Suspense, useMemo, useEffect, useRef } from "react"
+import * as THREE from "three"
 
 
-function FullPC({ selectedParts }) {
+const PART_MAP = {
+
+  cpu:["Object_4","Object_5","Object_6"],
+
+  gpu:[
+    "Object_8","Object_9","Object_10",
+    "Object_11","Object_12","Object_13","Object_14"
+  ],
+
+  ram:[
+    "Object_22","Object_23","Object_24",
+    "Object_26","Object_27","Object_28",
+    "Object_30","Object_31","Object_32",
+    "Object_34","Object_35","Object_36"
+  ],
+
+  motherboard:[
+    "Object_38","Object_39","Object_40",
+    "Object_42","Object_44","Object_51"
+  ],
+
+  psu:["Object_58","Object_60"],
+
+  fans:["Object_78","Object_79"]
+
+}
+
+
+function FullPC({ selectedParts }){
 
   const { scene } = useGLTF("/models/pc_full.glb")
 
-  const model = useMemo(() => scene.clone(), [scene])
+  const model = useMemo(()=>scene.clone(),[scene])
 
-  useEffect(() => {
+  const gpuMeshes = useRef([])
+  const ramMeshes = useRef([])
+  const fanMeshes = useRef([])
 
-    model.traverse((child) => {
+  useEffect(()=>{
 
-      // 🔎 PRINT MESH NAMES TO CONSOLE
-      console.log("Mesh:", child.name)
+    gpuMeshes.current = []
+    ramMeshes.current = []
+    fanMeshes.current = []
 
-      if (!child.isMesh) return
+    model.traverse((child)=>{
 
-      const name = child.name.toLowerCase()
+      if(!child.isMesh) return
 
-      if (name.includes("gpu")) {
-        child.visible = selectedParts.gpu
-      }
+      const name = child.name
 
-      if (name.includes("ram")) {
-        child.visible = selectedParts.ram
-      }
+      if(PART_MAP.gpu.includes(name))
+        gpuMeshes.current.push(child)
 
-      if (name.includes("fan")) {
-        child.visible = selectedParts.fans
-      }
+      if(PART_MAP.ram.includes(name))
+        ramMeshes.current.push(child)
 
-      if (name.includes("cooler") || name.includes("radiator")) {
-        child.visible = selectedParts.cooler
-      }
+      if(PART_MAP.fans.includes(name))
+        fanMeshes.current.push(child)
 
-      if (name.includes("motherboard") || name.includes("board")) {
-        child.visible = selectedParts.motherboard
-      }
-
-      if (name.includes("psu") || name.includes("power")) {
-        child.visible = selectedParts.psu
-      }
-
-      if (name.includes("cpu")) {
+      // visibility control
+      if(PART_MAP.cpu.includes(name))
         child.visible = selectedParts.cpu
-      }
+
+      if(PART_MAP.motherboard.includes(name))
+        child.visible = selectedParts.motherboard
+
+      if(PART_MAP.psu.includes(name))
+        child.visible = selectedParts.psu
 
     })
 
-  }, [model, selectedParts])
+  },[model,selectedParts])
+
+
+  useFrame(()=>{
+
+    gpuMeshes.current.forEach(mesh=>{
+
+      const target = selectedParts.gpu ? 0 : -1.5
+      mesh.position.x = THREE.MathUtils.lerp(mesh.position.x,target,0.08)
+
+    })
+
+
+    ramMeshes.current.forEach(mesh=>{
+
+      const target = selectedParts.ram ? 0 : 0.8
+      mesh.position.y = THREE.MathUtils.lerp(mesh.position.y,target,0.08)
+
+    })
+
+
+    fanMeshes.current.forEach(mesh=>{
+
+      if(selectedParts.fans)
+        mesh.rotation.z += 0.25
+
+    })
+
+  })
 
 
   return (
     <primitive
       object={model}
       scale={1}
-      position={[0, -0.6, 0]}
+      position={[0,-0.6,0]}
     />
   )
-}
 
-
-
-function GlassPanel({ open }) {
-
-  const ref = useRef()
-
-  useFrame(() => {
-
-    if (!ref.current) return
-
-    const target = open ? -Math.PI / 2 : 0
-    ref.current.rotation.y += (target - ref.current.rotation.y) * 0.1
-
-  })
-
-  return (
-    <mesh ref={ref} position={[1.1, 0.4, 0]}>
-      <boxGeometry args={[0.02, 1.5, 1.4]} />
-      <meshStandardMaterial transparent opacity={0.25} />
-    </mesh>
-  )
 }
 
 
 
 export default function PCViewer3D({
-  rgbEnabled,
-  glassPanel,
-  selectedParts
-}) {
 
-  return (
+  selectedParts,
+  rgbEnabled
 
-    <Canvas camera={{ position: [4, 3, 6], fov: 45 }}>
+}){
 
-      <Environment preset="city" />
+  return(
 
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[5, 5, 5]} intensity={2} />
+    <Canvas camera={{position:[4,3,6],fov:45}}>
+
+      <Environment preset="city"/>
+
+      <ambientLight intensity={0.8}/>
+      <directionalLight position={[5,5,5]} intensity={2}/>
 
       {rgbEnabled && (
         <>
-          <pointLight color="cyan" intensity={2} position={[-1, 1, 1]} />
-          <pointLight color="magenta" intensity={2} position={[1, 1, 1]} />
+          <pointLight color="cyan" intensity={2} position={[-1,1,1]}/>
+          <pointLight color="magenta" intensity={2} position={[1,1,1]}/>
         </>
       )}
 
       <Suspense fallback={null}>
-        <FullPC selectedParts={selectedParts} />
+        <FullPC selectedParts={selectedParts}/>
       </Suspense>
-
-      <GlassPanel open={glassPanel} />
 
       <OrbitControls
         enablePan={false}
         autoRotate
-        autoRotateSpeed={0.5}
+        autoRotateSpeed={0.4}
       />
 
     </Canvas>
 
   )
+
 }
