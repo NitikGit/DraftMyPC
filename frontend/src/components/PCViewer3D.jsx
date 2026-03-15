@@ -3,7 +3,7 @@ import { OrbitControls, Environment, useGLTF } from "@react-three/drei"
 import { Suspense, useMemo, useEffect, useRef } from "react"
 import * as THREE from "three"
 
-function FullPC({ selectedParts, caseColor, glassPanel }) {
+function FullPC({ selectedParts}) {
 
   const { scene } = useGLTF("/models/pc_full.glb")
 
@@ -21,26 +21,6 @@ function FullPC({ selectedParts, caseColor, glassPanel }) {
 
       const name = child.name
       const mat = child.material?.name
-      
-      //color case
-      if (
-  ["Case","material_15"].includes(mat) &&
-  ["Object_65","Object_67","Object_68","Object_70","Object_72"].includes(name)
-){
-  child.visible = true
-
-  if (caseColor) {
-    child.material = child.material.clone()
-    child.material.color.set(caseColor)
-  }
-
-  return
-}
-
-        // GLASS PANEL
-      if(name === "Object_70"){
-        child.visible = glassPanel
-      }
 
       // hide components if not selected
       if (name.includes("Object_4") || name.includes("Object_5") || name.includes("Object_6")) {
@@ -70,11 +50,13 @@ function FullPC({ selectedParts, caseColor, glassPanel }) {
 
     })
 
-  }, [model, selectedParts, caseColor, glassPanel])
+  }, [model, selectedParts])
 
   useFrame(() => {
     fanMeshes.current.forEach(mesh => {
-      mesh.rotation.z += 0.25
+      if(mesh.visible){
+        mesh.rotation.z += 0.25
+      }
     })
   })
 
@@ -91,7 +73,7 @@ function FullPC({ selectedParts, caseColor, glassPanel }) {
 export default function PCViewer3D({
   selectedParts,
   rgbEnabled,
-  caseColor
+  autoRotate
 }) {
 
   return (
@@ -116,11 +98,11 @@ export default function PCViewer3D({
       <Suspense fallback={null}>
         <FullPC
           selectedParts={selectedParts}
-          caseColor={caseColor}
         />
       </Suspense>
 
-      <OrbitControls enablePan={false} enableDamping dampingFactor={0.05} />
+      <OrbitControls enablePan={false} enableDamping dampingFactor={0.05} autoRotate={autoRotate}
+  autoRotateSpeed={0.5}/>
 
     </Canvas>
   )
