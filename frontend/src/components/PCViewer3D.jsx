@@ -15,6 +15,10 @@ function FullPC({ selectedParts, rgbEnabled }) {
 
     fanMeshes.current = []
 
+     const box = new THREE.Box3().setFromObject(model)
+     const center = box.getCenter(new THREE.Vector3())
+     model.position.sub(center)
+
     model.traverse((child) => {
 
       if (!child.isMesh) return
@@ -60,7 +64,7 @@ function FullPC({ selectedParts, rgbEnabled }) {
 
     })
 
-  }, [model, selectedParts])
+  }, [model])
 
   useFrame((state) => {
 
@@ -93,7 +97,7 @@ function FullPC({ selectedParts, rgbEnabled }) {
     <primitive
       object={model}
       scale={1.8}
-      position={[0, -1.2, 0]}
+      position={[0.2, 0, 0]}
       rotation={[0, Math.PI, 0]}
     />
   )
@@ -107,9 +111,8 @@ export default function PCViewer3D({
 
   return (
 
-    <Canvas camera={{ position:[2.3,1.4,2.3], fov:45 }}>
-
-      <color attach="background" args={["#202020"]} />
+  <Canvas camera={{ position:[1.4,1.2,1.6], fov:40 }}>
+      <color attach="background" args={["#000000"]} />
 
       <Environment preset="studio"/>
 
@@ -132,7 +135,7 @@ export default function PCViewer3D({
       </Suspense>
 
       <OrbitControls enablePan={false} enableDamping dampingFactor={0.05} autoRotate={autoRotate}
-  autoRotateSpeed={0.5}target={[0, -0.3, 0]}/>
+  autoRotateSpeed={0.5}target={[0.2,0,0]}/>
 
     </Canvas>
   )
