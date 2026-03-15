@@ -18,6 +18,11 @@ def get_builds():
 
     builds = cur.fetchall()
 
+    # Convert JSON string -> object
+    for b in builds:
+        if isinstance(b["components"], str):
+            b["components"] = json.loads(b["components"])
+
     cur.close()
     conn.close()
 
