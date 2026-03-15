@@ -3,7 +3,7 @@ import { OrbitControls, Environment, useGLTF } from "@react-three/drei"
 import { Suspense, useMemo, useEffect, useRef } from "react"
 import * as THREE from "three"
 
-function FullPC({ selectedParts}) {
+function FullPC({ selectedParts, rgbEnabled }) {
 
   const { scene } = useGLTF("/models/pc_full.glb")
 
@@ -21,6 +21,16 @@ function FullPC({ selectedParts}) {
 
       const name = child.name
       const mat = child.material?.name
+
+      // RGB fan glow
+      if(mat === "Emission" && rgbEnabled){
+
+        child.material = child.material.clone()
+
+        child.material.emissive = new THREE.Color("red")
+        child.material.emissiveIntensity = 3
+
+      }
 
       // hide components if not selected
       if (name.includes("Object_4") || name.includes("Object_5") || name.includes("Object_6")) {
@@ -52,13 +62,32 @@ function FullPC({ selectedParts}) {
 
   }, [model, selectedParts])
 
-  useFrame(() => {
-    fanMeshes.current.forEach(mesh => {
-      if(mesh.visible){
-        mesh.rotation.z += 0.25
-      }
-    })
+  useFrame((state) => {
+
+  const t = state.clock.getElapsedTime()
+
+  fanMeshes.current.forEach(mesh => {
+    mesh.rotation.z += 0.25
   })
+
+  model.traverse((child) => {
+
+    if(!child.isMesh) return
+    if(child.material?.name !== "Emission") return
+
+    if(rgbEnabled){
+
+      const hue = (t * 0.2) % 1
+      const color = new THREE.Color().setHSL(hue,1,0.5)
+
+      child.material.emissive = color
+      child.material.emissiveIntensity = 4
+
+    }
+
+  })
+
+})
 
   return (
     <primitive
@@ -78,7 +107,7 @@ export default function PCViewer3D({
 
   return (
 
-    <Canvas camera={{ position:[2,1.6,2.4], fov:45 }}>
+    <Canvas camera={{ position:[2.3,1.4,2.3], fov:45 }}>
 
       <color attach="background" args={["#202020"]} />
 
@@ -89,20 +118,21 @@ export default function PCViewer3D({
 
       {rgbEnabled && (
       <>
-        <pointLight color="cyan" intensity={8} position={[0.2,0.3,0.2]} />
-        <pointLight color="magenta" intensity={8} position={[-0.2,0.2,0]} />
-        <pointLight color="blue" intensity={6} position={[0,0.1,-0.2]} />
+        <pointLight color="cyan" intensity={12} position={[0.2,0.3,0.2]} />
+        <pointLight color="magenta" intensity={12} position={[-0.2,0.2,0]} />
+        <pointLight color="blue" intensity={10} position={[0,0.1,-0.2]} />
       </>
     )}
 
       <Suspense fallback={null}>
         <FullPC
           selectedParts={selectedParts}
+          rgbEnabled={rgbEnabled}
         />
       </Suspense>
 
       <OrbitControls enablePan={false} enableDamping dampingFactor={0.05} autoRotate={autoRotate}
-  autoRotateSpeed={0.5}/>
+  autoRotateSpeed={0.5}target={[0, -0.3, 0]}/>
 
     </Canvas>
   )
