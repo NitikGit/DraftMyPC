@@ -143,20 +143,17 @@ const handleRemoveComponent = (category) => {
   };
 
   const handleLoadTemplate = (template) => {
-    const loaded = {};
-    Object.entries(template.components).forEach(([key, name]) => {
-      if (name) {
-        const component = pcComponents.find(c => 
-          c.category === key && c.name.toLowerCase().includes(String(name).toLowerCase().split(' ')[0])
-        );
-        if (component) loaded[key] = component;
-      }
-    });
-    setSelectedComponents(loaded);
-    setLoadDialogOpen(false);
-    toast.success(`Loaded template: ${template.name}`);
-  };
+  const loaded = {};
 
+  Object.entries(template.components).forEach(([key, id]) => {
+    const component = pcComponents.find(c => c.id === id);
+    if (component) loaded[key] = component;
+  });
+
+  setSelectedComponents(loaded);
+  setLoadDialogOpen(false);
+  toast.success(`Loaded template: ${template.name}`);
+  };
   const CategoryIcon = categoryIcons[selectedCategory] || Box;
 
   return (
