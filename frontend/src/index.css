@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Core Colors */
     --background: 0 0% 4%;
     --foreground: 0 0% 93%;
 
@@ -34,7 +35,7 @@
 
     --radius: 0.75rem;
 
-    /* Custom PC Builder colors */
+    /* Custom PC Builder Colors */
     --lime: 83 100% 36%;
     --lime-glow: 83 100% 45%;
     --glass-border: 0 0% 100%;
@@ -53,9 +54,7 @@
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -63,4 +62,49 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Existing styles stay the same */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Chrome autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #27272a inset !important;
+  box-shadow: 0 0 0px 1000px #27272a inset !important;
+  -webkit-text-fill-color: white !important;
+  caret-color: white !important;
+  transition: background-color 9999s ease-in-out 0s;
 }
