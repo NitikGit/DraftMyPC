@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from db import get_db_connection
 import time
 import json
-
+import uuid
 upload_bp = Blueprint("upload", __name__)
 
 @upload_bp.route("/upload-csv", methods=["POST"])
@@ -23,7 +23,7 @@ def upload_csv():
                 (id, name, category, brand, model, price, performance_tier, image_url, specs, best_for, retailer_links)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
-                str(int(time.time() * 1000)),
+                str(uuid.uuid4()),
                 item.get("name"),
                 item.get("category"),
                 item.get("brand"),
