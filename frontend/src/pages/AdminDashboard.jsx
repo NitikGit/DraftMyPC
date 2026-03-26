@@ -23,7 +23,128 @@ export default function Admin() {
   const [csvErrors, setCsvErrors] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadingCsv, setUploadingCsv] = useState(false);
+  //Helper to Normalize CSV Row
+    const normalizeRow = (row, index) => {
+    let specsParsed = {};
 
+    try {
+      specsParsed = row.specs ? JSON.parse(row.specs) : {};
+    } catch {
+      throw new Error(`Row ${index + 2}: specs must be valid JSON`);
+    }
+
+    return {
+      name: row.name?.trim() || "",
+      brand: row.brand?.trim() || "",
+      model: row.model?.trim() || "",
+      category: row.category?.trim() || "",
+      performanceTier: row.tier?.trim() || "",
+      price: Number(row.price) || 0,
+      imageUrl: row.imageUrl?.trim() || "",
+      bestFor: row.bestFor
+        ? row.bestFor.split(",").map((x) => x.trim()).filter(Boolean)
+        : [],
+      specs: specsParsed,
+    };
+  };
+
+  const parseCsvFile = (file) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const parsedRows = [];
+        const errors = [];
+
+        results.data.forEach((row, index) => {
+          try {
+            const normalized = normalizeRow(row, index);
+
+            if (!normalized.name || !normalized.brand || !normalized.category) {
+              errors.push(`Row ${index + 2}: missing required fields`);
+              return;
+            }
+
+            parsedRows.push(normalized);
+          } catch (err) {
+            errors.push(err.message);
+          }
+        });
+
+        setCsvRows(parsedRows);
+        setCsvErrors(errors);
+      },
+      error: (error) => {
+        setCsvRows([]);
+        setCsvErrors([error.message || "Failed to parse CSV"]);
+      },
+    });
+  };
+
+  const handleCsvInputChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    parseCsvFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    parseCsvFile(file);
+  };
+
+  const handleUploadPreviewedCsv = async () => {
+    if (!csvRows.length) {
+      alert("No valid CSV rows to upload");
+      return;
+    }
+
+    try {
+      setUploadingCsv(true);
+
+      const res = await fetch("http://127.0.0.1:5000/upload-csv", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ components: csvRows }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      alert(`Uploaded ${data.insertedCount} components successfully`);
+
+      setCsvRows([]);
+      setCsvErrors([]);
+
+      const fresh = await fetch("http://127.0.0.1:5000/components");
+      const freshData = await fresh.json();
+      setComponents(freshData);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setUploadingCsv(false);
+    }
+  };
+  
   //Get Components API
   useEffect(() => {
   fetch("http://127.0.0.1:5000/components")
