@@ -105,17 +105,17 @@ export default function Admin() {
           <form className="space-y-4" onSubmit={handleSubmit}>
 
             <input name="name" onChange={handleChange}
-              placeholder="RTX 4090 Founders Edition"
+              placeholder="GPU"
               className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
             <div className="grid grid-cols-2 gap-3">
 
               <input name="brand" onChange={handleChange}
-                placeholder="NVIDIA"
+                placeholder="Brand eg.NVIDIA"
                 className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
               <input name="model" onChange={handleChange}
-                placeholder="RTX 4090"
+                placeholder="Model"
                 className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
             </div>
@@ -149,7 +149,7 @@ export default function Admin() {
             </div>
 
             <input name="price" type="number" onChange={handleChange}
-              placeholder="159999"
+              placeholder="Price"
               className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
             <input name="imageUrl" onChange={handleChange}
