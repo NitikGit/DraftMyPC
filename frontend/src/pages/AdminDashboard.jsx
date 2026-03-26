@@ -1,5 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Papa from "papaparse";
+import { useEffect, useState } from "react";
+
 export default function Admin() {
 
   const [components, setComponents] = useState([]);
@@ -15,6 +18,11 @@ export default function Admin() {
   bestFor: "",
   specs: "{}"
   });
+  //State for CSV file
+  const [csvRows, setCsvRows] = useState([]);
+  const [csvErrors, setCsvErrors] = useState([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [uploadingCsv, setUploadingCsv] = useState(false);
 
   //Get Components API
   useEffect(() => {

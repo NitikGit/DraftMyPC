@@ -34,6 +34,7 @@
     "clsx": "^2.1.1",
     "drei": "^2.2.21",
     "lucide-react": "^0.574.0",
+    "papaparse": "^5.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.1",
