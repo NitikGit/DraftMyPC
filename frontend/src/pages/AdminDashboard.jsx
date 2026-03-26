@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
-import { useEffect, useState } from "react";
 
 export default function Admin() {
 
@@ -144,7 +143,7 @@ export default function Admin() {
       setUploadingCsv(false);
     }
   };
-  
+
   //Get Components API
   useEffect(() => {
   fetch("http://127.0.0.1:5000/components")
@@ -300,7 +299,95 @@ export default function Admin() {
             </button>
 
           </form>
+        <div className="bg-[#111] border border-[#222] rounded-xl p-6 mb-8">
+  <h2 className="text-lg font-semibold mb-4">
+    Upload CSV
+  </h2>
 
+  <div
+    onDragOver={handleDragOver}
+    onDragLeave={handleDragLeave}
+    onDrop={handleDrop}
+    className={`border-2 border-dashed rounded-xl p-6 text-center transition ${
+      dragActive ? "border-[#76b900] bg-[#76b900]/10" : "border-[#333] bg-[#0f0f0f]"
+    }`}
+  >
+    <p className="mb-3 text-gray-300">
+      Drag & drop your CSV here
+    </p>
+
+    <p className="mb-4 text-sm text-gray-500">
+      or choose a file manually
+    </p>
+
+    <input
+      type="file"
+      accept=".csv"
+      onChange={handleCsvInputChange}
+      className="block mx-auto text-sm"
+    />
+  </div>
+
+  {!!csvErrors.length && (
+    <div className="mt-4 bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+      <h3 className="text-red-400 font-semibold mb-2">CSV Errors</h3>
+      <div className="space-y-1 text-sm text-red-300">
+        {csvErrors.map((err, i) => (
+          <p key={i}>{err}</p>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {!!csvRows.length && (
+    <div className="mt-6">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold">Preview ({csvRows.length} rows)</h3>
+
+        <button
+          onClick={handleUploadPreviewedCsv}
+          disabled={uploadingCsv}
+          className="bg-[#76b900] hover:bg-[#8ad000] text-black font-semibold px-4 py-2 rounded-lg disabled:opacity-50"
+        >
+          {uploadingCsv ? "Uploading..." : "Upload to DB"}
+        </button>
+      </div>
+
+      <div className="overflow-x-auto border border-[#222] rounded-lg">
+        <table className="w-full text-sm">
+          <thead className="bg-[#181818]">
+            <tr>
+              <th className="text-left px-4 py-3">Name</th>
+              <th className="text-left px-4 py-3">Brand</th>
+              <th className="text-left px-4 py-3">Model</th>
+              <th className="text-left px-4 py-3">Category</th>
+              <th className="text-left px-4 py-3">Tier</th>
+              <th className="text-left px-4 py-3">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {csvRows.slice(0, 10).map((row, i) => (
+              <tr key={i} className="border-t border-[#222]">
+                <td className="px-4 py-3">{row.name}</td>
+                <td className="px-4 py-3">{row.brand}</td>
+                <td className="px-4 py-3">{row.model}</td>
+                <td className="px-4 py-3">{row.category}</td>
+                <td className="px-4 py-3">{row.performanceTier}</td>
+                <td className="px-4 py-3">₹{row.price}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {csvRows.length > 10 && (
+        <p className="text-xs text-gray-500 mt-2">
+          Showing first 10 rows only
+        </p>
+      )}
+    </div>
+  )}
+</div>
         </div>
 
         {/* COMPONENT TABLE */}
