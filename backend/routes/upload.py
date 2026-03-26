@@ -20,7 +20,7 @@ def upload_csv():
         for item in components:
             cursor.execute("""
                 INSERT INTO components 
-                (id, name, category, brand, model, price, tier, imageUrl, specs, bestFor, links)
+                (id, name, category, brand, model, price, performance_tier, image_url, specs, best_for, retailer_links)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 str(int(time.time() * 1000)),
