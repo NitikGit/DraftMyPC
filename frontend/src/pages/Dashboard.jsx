@@ -50,9 +50,13 @@ const Index = () => {
   ];
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+  localStorage.removeItem("role"); 
+  localStorage.removeItem("user"); 
+  await signOut();
+  navigate("/signin");
   };
+
+  const role = localStorage.getItem("role");
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,7 +83,7 @@ const Index = () => {
               3D View
             </Button>
             
-            {user ? (
+            {role ? (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm">
                   <User className="w-4 h-4 mr-2" />
@@ -90,7 +94,7 @@ const Index = () => {
                 </Button>
               </div>
             ) : (
-              <Button variant="outline" onClick={() => navigate("/auth")}>
+              <Button variant="outline" onClick={() => navigate("/signin")}>
                 Sign In
               </Button>
             )}
@@ -237,7 +241,7 @@ const Index = () => {
                 Get Started Free
               </Button>
               {!user && (
-                <Button variant="outline" onClick={() => navigate("/auth")}>
+                <Button variant="outline" onClick={() => navigate("/signup")}>
                   Create Account
                 </Button>
               )}

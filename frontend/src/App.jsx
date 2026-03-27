@@ -19,45 +19,52 @@ export default function App() {
     <>
       <Routes>
 
-        {/* make Dashboard default route*/}
+        {/* dashboard default route */}
         <Route path="/" element={<Navigate to="/dashboard" />} />
 
-        {/* PUBLIC ROUTES */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/catalog" element={<Catalog />} />
-        <Route path="/compare-builds" element={<CompareBuilds />} />
-        <Route path="/3d-builder" element={<ThreeDBuilder />} />
+
+        {/* authentication */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
 
         {/* protected routes */}
-        <Route
-          path="/builder"
-          element={
-            <ProtectedRoute>
-              <Builder />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/builder" element={
+          <ProtectedRoute>
+            <Builder />
+          </ProtectedRoute>
+        } />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/catalog" element={
+          <ProtectedRoute>
+            <Catalog />
+          </ProtectedRoute>
+        } />
 
-        {/* admin only pages */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute roleRequired="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/compare-builds" element={
+          <ProtectedRoute>
+            <CompareBuilds />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/3d-builder" element={
+          <ProtectedRoute>
+            <ThreeDBuilder />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+
+        {/*admin only */}
+        <Route path="/admin" element={
+          <ProtectedRoute roleRequired="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
 
       </Routes>
 
