@@ -49,12 +49,10 @@ const Index = () => {
     },
   ];
 
-  const handleSignOut = async () => {
-  localStorage.removeItem("role"); 
-  localStorage.removeItem("user"); 
-  await signOut();
+const handleSignOut = () => {
+  localStorage.clear();
   navigate("/signin");
-  };
+};
 
   const role = localStorage.getItem("role");
 
