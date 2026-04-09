@@ -47,3 +47,32 @@ def login():
         }), 200
 
     return jsonify({"error": "Invalid credentials"}), 401
+
+
+#routes for forget password (demo purpose so email redirects directly)
+
+@auth_routes.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json()
+
+    email = data["email"]
+    new_password = data["new_password"]
+
+    user = get_user_by_email(email)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "UPDATE users SET password = %s WHERE email = %s"
+    cursor.execute(query, (hashed_password, email))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Password updated successfully"}), 200
