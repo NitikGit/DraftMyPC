@@ -11,6 +11,7 @@ import ThreeDBuilder from "./pages/ThreeDBuilder";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./pages/ProtectedRoutes";
+import ForgotPassword from "./pages/ForgotPassword";
 
 import { Toaster } from "sonner";
 
@@ -27,6 +28,7 @@ export default function App() {
         {/* authentication */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* protected routes */}
         <Route path="/builder" element={

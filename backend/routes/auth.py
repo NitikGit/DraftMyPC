@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_bcrypt import Bcrypt
 from models.user_model import create_user, get_user_by_email
+from db import get_db_connection
 
 auth_routes = Blueprint("auth", __name__)
 bcrypt = Bcrypt()
