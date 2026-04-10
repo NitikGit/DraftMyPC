@@ -14,6 +14,7 @@ import ProtectedRoute from "./pages/ProtectedRoutes";
 import ForgotPassword from "./pages/ForgotPassword";
 
 import { Toaster } from "sonner";
+import Prices from './pages/Prices';
 
 export default function App() {
   return (
@@ -61,12 +62,20 @@ export default function App() {
           </ProtectedRoute>
         } />
 
+         <Route path="/price-tracker" element={
+          <ProtectedRoute>
+            <Prices />
+          </ProtectedRoute>
+        } />
+
         {/*admin only */}
         <Route path="/admin" element={
           <ProtectedRoute roleRequired="admin">
             <AdminDashboard />
           </ProtectedRoute>
         } />
+
+
 
       </Routes>
 
