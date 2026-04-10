@@ -87,7 +87,7 @@ def delete_component(component_id):
 
     return jsonify({"message": "Component deleted"})
 
-#API to update price of components in Admin dashboard and also save the price history
+#API to add manual price 
 @components_routes.route("/update-price", methods=["POST"])
 def update_price():
     data = request.json
@@ -113,3 +113,23 @@ def update_price():
     conn.close()
 
     return jsonify({"message": "Price updated successfully"})
+
+#API to get price history for a component
+@components_routes.route("/price-history/<component_id>", methods=["GET"])
+def get_price_history(component_id):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT price, date_updated
+        FROM price_history
+        WHERE component_id = %s
+        ORDER BY date_updated ASC
+    """, (component_id,))
+
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return jsonify(rows)
