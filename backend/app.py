@@ -8,8 +8,8 @@ from routes.components_routes import components_routes
 
 app = Flask(__name__)
 
-# enable CORS for all routes
-CORS(app, origins=["http://localhost:5173"], methods=["GET","POST","DELETE","OPTIONS"])
+#FIXED CORS
+CORS(app)
 
 bcrypt = Bcrypt(app)
 

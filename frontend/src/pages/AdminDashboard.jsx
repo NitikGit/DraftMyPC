@@ -210,6 +210,32 @@ export default function Admin() {
 
   };
 
+    const updatePrice = async (comp) => {
+  try {
+    const res = await fetch("http://127.0.0.1:5000/update-price", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: comp.id,
+        price: Number(comp.price),
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Price updated successfully");
+    } else {
+      alert(data.error || "Update failed");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
 
@@ -408,13 +434,14 @@ export default function Admin() {
                   <th className="text-left py-3 px-4 text-gray-400">Brand</th>
                   <th className="text-left py-3 px-4 text-gray-400">Price</th>
                   <th className="text-left py-3 px-4 text-gray-400">Tier</th>
-                  <th></th>
+                  <th className="text-left py-3 px-4 text-gray-400">Update</th>
+                  <th className="text-left py-3 px-4 text-gray-400">Delete</th>
                 </tr>
               </thead>
 
               <tbody>
 
-                {components.map((c) => (
+                {components.map((c, index) => (
 
                   <tr key={c.id} className="border-b border-[#1a1a1a]">
 
@@ -428,8 +455,17 @@ export default function Admin() {
 
                     <td className="py-3 px-4 text-gray-400">{c.brand}</td>
 
-                    <td className="py-3 px-4 text-[#76b900] font-semibold">
-                      ₹{c.price}
+                    <td className="py-3 px-4">
+                      <input
+                        type="number"
+                        value={c.price}
+                        onChange={(e) => {
+                          const updated = [...components];
+                          updated[index].price = e.target.value;
+                          setComponents(updated);
+                        }}
+                        className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 w-28 text-white"
+                      />
                     </td>
 
                     <td className="py-3 px-4 capitalize">
@@ -437,15 +473,21 @@ export default function Admin() {
                     </td>
 
                     <td className="py-3 px-4">
+                      <button
+                        onClick={() => updatePrice(c)}
+                        className="bg-[#76b900] hover:bg-[#8ad000] text-black font-semibold px-3 py-2 rounded-lg"
+                      >
+                        Update
+                      </button>
+                    </td>
 
+                    <td className="py-3 px-4">
                       <button
                         onClick={() => deleteComponent(c.id)}
-                        className="p-1.5 rounded hover:bg-red-500/10 text-red-500">
-
+                        className="p-1.5 rounded hover:bg-red-500/10 text-red-500"
+                      >
                         Delete
-
                       </button>
-
                     </td>
 
                   </tr>
