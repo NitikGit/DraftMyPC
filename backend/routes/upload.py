@@ -18,6 +18,8 @@ def upload_csv():
 
     try:
         for item in components:
+            component_id = str(uuid.uuid4())
+            
             cursor.execute("""
                 INSERT INTO components 
                 (id, name, category, brand, model, price, performance_tier, image_url, specs, best_for, retailer_links)
@@ -35,6 +37,11 @@ def upload_csv():
                 json.dumps(item.get("bestFor", [])),
                 None  
             ))
+
+            cursor.execute("""
+                INSERT INTO price_history (id, component_id, price)
+                VALUES (%s, %s, %s)
+            """, (str(uuid.uuid4()), component_id, item.get("price")))
 
         conn.commit()
 
