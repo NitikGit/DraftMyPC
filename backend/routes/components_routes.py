@@ -1,4 +1,5 @@
 import json
+import uuid
 from flask import Blueprint, jsonify, request
 from db import get_db_connection
 
@@ -85,3 +86,30 @@ def delete_component(component_id):
     conn.close()
 
     return jsonify({"message": "Component deleted"})
+
+#API to update price of components in Admin dashboard and also save the price history
+@components_routes.route("/update-price", methods=["POST"])
+def update_price():
+    data = request.json
+    component_id = data["id"]
+    new_price = data["price"]
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE components
+        SET price = %s
+        WHERE id = %s
+    """, (new_price, component_id))
+
+    cursor.execute("""
+        INSERT INTO price_history (id, component_id, price)
+        VALUES (%s, %s, %s)
+    """, (str(uuid.uuid4()), component_id, new_price))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({"message": "Price updated successfully"})
