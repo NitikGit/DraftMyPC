@@ -2,6 +2,7 @@ import json
 import uuid
 from flask import Blueprint, jsonify, request
 from db import get_db_connection
+from app import admin_required
 
 components_routes = Blueprint("components_routes", __name__)
 
@@ -39,6 +40,7 @@ def get_components():
 
 # API to set new components in Admin dashboard page
 @components_routes.route("/components", methods=["POST"])
+@admin_required
 def add_component():
 
     data = request.json

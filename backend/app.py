@@ -5,12 +5,10 @@ from routes.upload import upload_bp
 from routes.auth import auth_routes
 from routes.builds import build_routes
 from routes.components_routes import components_routes
+from flask import request, jsonify
 
 app = Flask(__name__)
-
-#FIXED CORS
-CORS(app)
-
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 bcrypt = Bcrypt(app)
 
 app.register_blueprint(auth_routes)
@@ -24,3 +22,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
