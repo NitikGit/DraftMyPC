@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS
 from routes.upload import upload_bp
 from routes.auth import auth_routes
 from routes.builds import build_routes
