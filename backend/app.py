@@ -7,23 +7,8 @@ from routes.components_routes import components_routes
 from routes.admin import admin_routes
 
 app = Flask(__name__)
+CORS(app)
 bcrypt = Bcrypt(app)
-
-@app.before_request
-def handle_options():
-    if request.method == "OPTIONS":
-        response = app.make_default_options_response()
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, role"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        return response
-
-@app.after_request
-def add_cors_headers(response):
-response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, role"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    return response
 
 app.register_blueprint(auth_routes)
 app.register_blueprint(build_routes)
