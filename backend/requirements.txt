@@ -3,3 +3,4 @@ gunicorn
 Flask-Bcrypt
 Flask-Cors
 pymysql
+mysql-connector-python
