@@ -2,7 +2,7 @@ import json
 import uuid
 from flask import Blueprint, jsonify, request
 from db import get_db_connection
-from app import admin_required
+from routes.admin import admin_required
 
 components_routes = Blueprint("components_routes", __name__)
 
@@ -76,6 +76,7 @@ def add_component():
 
 # API to delete components in Admin dashboard
 @components_routes.route("/components/<component_id>", methods=["DELETE"])
+@admin_required
 def delete_component(component_id):
 
     conn = get_db_connection()
@@ -91,6 +92,7 @@ def delete_component(component_id):
 
 #API to add manual price 
 @components_routes.route("/update-price", methods=["POST"])
+@admin_required
 def update_price():
     data = request.json
     component_id = data["id"]
@@ -117,7 +119,8 @@ def update_price():
     return jsonify({"message": "Price updated successfully"})
 
 #API to get price history for a component
-@components_routes.route("/price-history/<component_id>", methods=["GET"])
+@components_routes.route("/price-history/<component_id>", methods=["GET", "OPTIONS"])
+@admin_required
 def get_price_history(component_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -130,8 +133,15 @@ def get_price_history(component_id):
     """, (component_id,))
 
     rows = cursor.fetchall()
-
     cursor.close()
     conn.close()
 
-    return jsonify(rows)
+    serialized = [
+        {
+            "price": row["price"],
+            "date_updated": row["date_updated"].isoformat() if row["date_updated"] else None
+        }
+        for row in rows
+    ]
+
+    return jsonify(serialized)

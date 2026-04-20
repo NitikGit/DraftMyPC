@@ -3,11 +3,13 @@ from db import get_db_connection
 
 admin_routes = Blueprint("admin", __name__)
 
-#Admin middleware
 def admin_required(func):
     def wrapper(*args, **kwargs):
-        role = request.headers.get("role")
+        # Let preflight pass through
+        if request.method == "OPTIONS":
+            return func(*args, **kwargs)
 
+        role = request.headers.get("role")
         if role != "admin":
             return jsonify({"error": "Unauthorized"}), 403
 
@@ -17,7 +19,6 @@ def admin_required(func):
     return wrapper
 
 
-#Stats route
 @admin_routes.route("/admin/stats", methods=["GET"])
 @admin_required
 def admin_stats():
@@ -36,8 +37,8 @@ def admin_stats():
     cursor.close()
     conn.close()
 
-    return {
+    return jsonify({
         "users": users,
         "builds": builds,
         "components": components
-    }
+    })

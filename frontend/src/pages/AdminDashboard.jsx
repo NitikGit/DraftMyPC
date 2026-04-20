@@ -5,6 +5,11 @@ import Papa from "papaparse";
 export default function Admin() {
 
   const [components, setComponents] = useState([]);
+  
+  {/* pagination states */
+  }
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [form, setForm] = useState({
   name: "",
@@ -22,6 +27,9 @@ export default function Admin() {
   const [csvErrors, setCsvErrors] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadingCsv, setUploadingCsv] = useState(false);
+
+  const [stats, setStats] = useState({users: 0,builds: 0,components: 0});
+
   //Helper to Normalize CSV Row
     const normalizeRow = (row, index) => {
     let specsParsed = {};
@@ -119,6 +127,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "role": "admin"
         },
         body: JSON.stringify({ components: csvRows }),
       });
@@ -146,10 +155,26 @@ export default function Admin() {
 
   //Get Components API
   useEffect(() => {
-  fetch("http://127.0.0.1:5000/components")
+  fetch("http://127.0.0.1:5000/components", {
+    headers: {
+      "role": "admin"
+    }
+  })
   .then(res => res.json())
-  .then(data => setComponents(data));
+  .then(data => setComponents(data))
+  .catch(err => console.error(err));
   }, []);
+
+  useEffect(() => {
+  fetch("http://127.0.0.1:5000/admin/stats", {
+    headers: {
+      "role": "admin"
+    }
+  })
+    .then(res => res.json())
+    .then(data => setStats(data))
+    .catch(err => console.error(err));
+}, []);
 
   //Handle Entry
   const handleChange = (e) => {
@@ -188,7 +213,8 @@ export default function Admin() {
   const res = await fetch("http://127.0.0.1:5000/components", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "role": "admin"
     },
     body: JSON.stringify(newComponent)
   });
@@ -203,8 +229,11 @@ export default function Admin() {
   const deleteComponent = async (id) => {
 
   await fetch(`http://127.0.0.1:5000/components/${id}`, {
-    method: "DELETE"
-  });
+  method: "DELETE",
+  headers: {
+    "role": "admin"
+  }
+});
 
   setComponents(components.filter(c => c.id !== id));
 
@@ -216,6 +245,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+          "role": "admin"
       },
       body: JSON.stringify({
         id: comp.id,
@@ -236,17 +266,61 @@ export default function Admin() {
   }
 };
 
+const navigate = useNavigate();
+
+const handleSignOut = () => {
+  localStorage.removeItem("user");
+  localStorage.removeItem("role");
+  navigate("/signin");
+};
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
 
       <div className="border-b border-[#1a1a1a] bg-[#111]">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          
           <h1 className="text-2xl font-bold">
             Admin <span className="text-[#76b900]">PC Components</span>
           </h1>
+
+          <div className="flex items-center gap-2">
+
+            <button
+              onClick={() => navigate("/price-tracker")}
+              className="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition"
+            >
+              Prices
+            </button>
+
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 text-sm font-semibold bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg transition"
+            >
+              Sign Out
+            </button>
+
+          </div>
         </div>
       </div>
+      <div className="max-w-7xl mx-auto px-4 py-6 grid grid-cols-3 gap-6">
 
+      <div className="bg-[#111] border border-[#222] rounded-xl p-5">
+        <p className="text-gray-400 text-sm">Total Users</p>
+        <h2 className="text-2xl font-bold text-[#76b900]">{stats.users}</h2>
+      </div>
+
+      <div className="bg-[#111] border border-[#222] rounded-xl p-5">
+        <p className="text-gray-400 text-sm">Total Builds</p>
+        <h2 className="text-2xl font-bold text-[#76b900]">{stats.builds}</h2>
+      </div>
+
+      <div className="bg-[#111] border border-[#222] rounded-xl p-5">
+        <p className="text-gray-400 text-sm">Total Components</p>
+        <h2 className="text-2xl font-bold text-[#76b900]">{stats.components}</h2>
+      </div>
+
+    </div>
       <div className="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-[400px_1fr] gap-8">
 
         {/* ADD COMPONENT */}
@@ -424,9 +498,7 @@ export default function Admin() {
           </h2>
 
           <div className="overflow-x-auto">
-
             <table className="w-full text-sm">
-
               <thead>
                 <tr className="border-b border-[#222]">
                   <th className="text-left py-3 px-4 text-gray-400">Name</th>
@@ -438,67 +510,106 @@ export default function Admin() {
                   <th className="text-left py-3 px-4 text-gray-400">Delete</th>
                 </tr>
               </thead>
-
               <tbody>
+                {components
+                  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                  .map((c, index) => {
+                    const realIndex = (currentPage - 1) * itemsPerPage + index;
+                    return (
+                      <tr key={c.id} className="border-b border-[#1a1a1a]">
 
-                {components.map((c, index) => (
+                        <td className="py-3 px-4 font-medium">{c.name}</td>
 
-                  <tr key={c.id} className="border-b border-[#1a1a1a]">
+                        <td className="py-3 px-4">
+                          <span className="px-2 py-1 rounded bg-[#76b900]/10 text-[#76b900] text-xs uppercase">
+                            {c.category}
+                          </span>
+                        </td>
 
-                    <td className="py-3 px-4 font-medium">{c.name}</td>
+                        <td className="py-3 px-4 text-gray-400">{c.brand}</td>
 
-                    <td className="py-3 px-4">
-                      <span className="px-2 py-1 rounded bg-[#76b900]/10 text-[#76b900] text-xs uppercase">
-                        {c.category}
-                      </span>
-                    </td>
+                        <td className="py-3 px-4">
+                          <input
+                            type="number"
+                            value={c.price}
+                            onChange={(e) => {
+                              const updated = [...components];
+                              updated[realIndex].price = e.target.value;
+                              setComponents(updated);
+                            }}
+                            className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 w-28 text-white"
+                          />
+                        </td>
 
-                    <td className="py-3 px-4 text-gray-400">{c.brand}</td>
+                        <td className="py-3 px-4 capitalize">{c.performanceTier}</td>
 
-                    <td className="py-3 px-4">
-                      <input
-                        type="number"
-                        value={c.price}
-                        onChange={(e) => {
-                          const updated = [...components];
-                          updated[index].price = e.target.value;
-                          setComponents(updated);
-                        }}
-                        className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2 w-28 text-white"
-                      />
-                    </td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => updatePrice(c)}
+                            className="bg-[#76b900] hover:bg-[#8ad000] text-black font-semibold px-3 py-2 rounded-lg"
+                          >
+                            Update
+                          </button>
+                        </td>
 
-                    <td className="py-3 px-4 capitalize">
-                      {c.performance_tier}
-                    </td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => deleteComponent(c.id)}
+                            className="p-1.5 rounded hover:bg-red-500/10 text-red-500"
+                          >
+                            Delete
+                          </button>
+                        </td>
 
-                    <td className="py-3 px-4">
-                      <button
-                        onClick={() => updatePrice(c)}
-                        className="bg-[#76b900] hover:bg-[#8ad000] text-black font-semibold px-3 py-2 rounded-lg"
-                      >
-                        Update
-                      </button>
-                    </td>
+                      </tr>
+                    );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-                    <td className="py-3 px-4">
-                      <button
-                        onClick={() => deleteComponent(c.id)}
-                        className="p-1.5 rounded hover:bg-red-500/10 text-red-500"
-                      >
-                        Delete
-                      </button>
-                    </td>
+          {/* Pagination */}
+          {Math.ceil(components.length / itemsPerPage) > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-[#222]">
 
-                  </tr>
+              <p className="text-sm text-gray-400">
+                Showing {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, components.length)} of {components.length}
+              </p>
 
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-sm bg-[#1a1a1a] border border-[#333] rounded-lg disabled:opacity-40 hover:border-[#76b900] transition"
+                >
+                  ← Prev
+                </button>
+
+                {[...Array(Math.ceil(components.length / itemsPerPage))].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={`px-3 py-1.5 text-sm rounded-lg border transition ${
+                      currentPage === i + 1
+                        ? "bg-[#76b900] text-black border-[#76b900] font-semibold"
+                        : "bg-[#1a1a1a] border-[#333] hover:border-[#76b900]"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
                 ))}
 
-              </tbody>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(p + 1, Math.ceil(components.length / itemsPerPage)))}
+                  disabled={currentPage === Math.ceil(components.length / itemsPerPage)}
+                  className="px-3 py-1.5 text-sm bg-[#1a1a1a] border border-[#333] rounded-lg disabled:opacity-40 hover:border-[#76b900] transition"
+                >
+                  Next →
+                </button>
+              </div>
 
-            </table>
-
-          </div>
+            </div>
+          )}
 
         </div>
 

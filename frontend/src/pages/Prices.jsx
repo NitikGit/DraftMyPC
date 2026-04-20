@@ -11,7 +11,7 @@ export default function Prices() {
   const itemsPerPage = 6;
 
   const calculateTrend = (history) => {
-    if (!history || history.length < 2) return null;
+    if (!history || history.length < 1) return null;
 
     const prices = history.map(h => Number(h.price));
     const latest = prices[prices.length - 1];
@@ -34,14 +34,17 @@ export default function Prices() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("http://127.0.0.1:5000/components");
+      const res = await fetch("http://127.0.0.1:5000/components", {
+        headers: { "role": "admin" }
+      });
       const data = await res.json();
 
       const withHistory = await Promise.all(
         data.map(async (comp) => {
           try {
             const histRes = await fetch(
-              `http://127.0.0.1:5000/price-history/${comp.id}`
+              `http://127.0.0.1:5000/price-history/${comp.id}`,
+              { headers: { "role": "admin" } }  
             );
             const history = await histRes.json();
 
