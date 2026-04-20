@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
+import API_URL from "../config";
+
 
 export default function Admin() {
 
@@ -123,7 +125,7 @@ export default function Admin() {
     try {
       setUploadingCsv(true);
 
-      const res = await fetch("http://127.0.0.1:5000/upload-csv", {
+      const res = await fetch(`${API_URL}/upload-csv`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -143,7 +145,7 @@ export default function Admin() {
       setCsvRows([]);
       setCsvErrors([]);
 
-      const fresh = await fetch("http://127.0.0.1:5000/components");
+      const fresh = await fetch(`${API_URL}/components`);
       const freshData = await fresh.json();
       setComponents(freshData);
     } catch (err) {
@@ -155,7 +157,7 @@ export default function Admin() {
 
   //Get Components API
   useEffect(() => {
-  fetch("http://127.0.0.1:5000/components", {
+  fetch(`${API_URL}/components`, {
     headers: {
       "role": "admin"
     }
@@ -166,7 +168,7 @@ export default function Admin() {
   }, []);
 
   useEffect(() => {
-  fetch("http://127.0.0.1:5000/admin/stats", {
+  fetch(`${API_URL}/admin/stats`, {
     headers: {
       "role": "admin"
     }
@@ -210,7 +212,7 @@ export default function Admin() {
     specs: specsParsed
   };
 
-  const res = await fetch("http://127.0.0.1:5000/components", {
+  const res = await fetch(`${API_URL}/components`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -228,7 +230,7 @@ export default function Admin() {
   //API Delete Component
   const deleteComponent = async (id) => {
 
-  await fetch(`http://127.0.0.1:5000/components/${id}`, {
+  await fetch(`${API_URL}/components/${id}`, {
   method: "DELETE",
   headers: {
     "role": "admin"
@@ -241,7 +243,7 @@ export default function Admin() {
 
     const updatePrice = async (comp) => {
   try {
-    const res = await fetch("http://127.0.0.1:5000/update-price", {
+    const res = await fetch(`${API_URL}/update-price`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

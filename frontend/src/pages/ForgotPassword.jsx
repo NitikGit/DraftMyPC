@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import forgotImg from "../assets/forgot.jpeg";
+import API_URL from "../config";
+
+
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -9,7 +12,7 @@ export default function ForgotPassword() {
   const [password, setPassword] = useState("");
 
   const handleReset = async () => {
-    const response = await fetch("http://127.0.0.1:5000/forgot-password", {
+    const response = await fetch(`${API_URL}/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

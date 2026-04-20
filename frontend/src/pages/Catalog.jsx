@@ -26,6 +26,8 @@ import {
   Zap,
   ExternalLink
 } from "lucide-react";
+import API_URL from "../config";
+
 
 const categoryIcons = {
   cpu: Cpu,
@@ -59,7 +61,7 @@ const Catalog = () => {
   const tiers = ["all", "budget", "mid-range", "high-end", "enthusiast"];
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/components")
+    fetch(`${API_URL}/components`)
       .then(res => res.json())
       .then(data => {
         console.log("catalog:", data);

@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { prebuiltTemplates } from "@/data/prebuiltTemplates";
 import { Cpu, Zap, Shield, TrendingDown, Wrench, Target, User, LogOut, Box } from "lucide-react";
 
+
 const Index = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();

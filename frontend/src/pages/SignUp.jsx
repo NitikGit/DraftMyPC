@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../config";
+
 
 
 export default function Signup() {
@@ -14,7 +16,7 @@ export default function Signup() {
 
     // Sign up API  
   const handleSignup = async () => {
-  const response = await fetch("http://127.0.0.1:5000/register", {
+  const response = await fetch(`${API_URL}/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

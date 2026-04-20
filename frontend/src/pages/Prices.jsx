@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import API_URL from "../config";
 
 export default function Prices() {
   const [components, setComponents] = useState([]);
@@ -34,7 +35,7 @@ export default function Prices() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("http://127.0.0.1:5000/components", {
+      const res = await fetch(`${API_URL}/components`, {
         headers: { "role": "admin" }
       });
       const data = await res.json();
@@ -43,7 +44,7 @@ export default function Prices() {
         data.map(async (comp) => {
           try {
             const histRes = await fetch(
-              `http://127.0.0.1:5000/price-history/${comp.id}`,
+              `${API_URL}/price-history/${comp.id}`,
               { headers: { "role": "admin" } }  
             );
             const history = await histRes.json();

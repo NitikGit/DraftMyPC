@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth"; 
+import API_URL from "../config";
+
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -12,7 +14,7 @@ export default function SignIn() {
 
   //API for Login
   const handleLogin = async () => {
-  const response = await fetch("http://localhost:5000/login", {
+  const response = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

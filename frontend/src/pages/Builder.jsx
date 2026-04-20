@@ -28,6 +28,8 @@ import {
   Zap,
   FolderOpen
 } from "lucide-react";
+import API_URL from "../config";
+
 
 const categoryIcons = {
   cpu: Cpu,
@@ -61,7 +63,7 @@ const Builder = () => {
   const [buildName, setBuildName] = useState("");
   // Fetch components from backend 
   useEffect(() => {
-  fetch("http://127.0.0.1:5000/components")
+  fetch(`${API_URL}/components`)
     .then(res => res.json())
     .then(data => {
       console.log("components:", data);
