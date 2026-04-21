@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import API_URL from "../config";
+import { toast } from "sonner";
 
 
 export default function Admin() {
@@ -33,29 +34,49 @@ export default function Admin() {
   const [stats, setStats] = useState({users: 0,builds: 0,components: 0});
 
   //Helper to Normalize CSV Row
-    const normalizeRow = (row, index) => {
-    let specsParsed = {};
+const normalizeRow = (row, index) => {
+  let specsParsed = {};
 
-    try {
-      specsParsed = row.specs ? JSON.parse(row.specs) : {};
-    } catch {
-      throw new Error(`Row ${index + 2}: specs must be valid JSON`);
-    }
+  // Parse specs safely
+  try {
+    specsParsed = row.specs ? JSON.parse(row.specs) : {};
+  } catch {
+    throw new Error(`Row ${index + 2}: specs must be valid JSON`);
+  }
 
-    return {
-      name: row.name?.trim() || "",
-      brand: row.brand?.trim() || "",
-      model: row.model?.trim() || "",
-      category: row.category?.trim() || "",
-      performanceTier: row.tier?.trim() || "",
-      price: Number(row.price) || 0,
-      imageUrl: row.imageUrl?.trim() || "",
-      bestFor: row.bestFor
-        ? row.bestFor.split(",").map((x) => x.trim()).filter(Boolean)
-        : [],
-      specs: specsParsed,
-    };
+  // Trim all fields
+  const name = row.name?.trim();
+  const brand = row.brand?.trim();
+  const model = row.model?.trim();
+  const category = row.category?.trim();
+  const performanceTier = row.tier?.trim();
+  const imageUrl = row.imageUrl?.trim();
+
+  // Price validation (STRICT)
+  const price = Number(row.price);
+  if (!row.price || isNaN(price) || price <= 0) {
+    throw new Error(`Row ${index + 2}: price must be a valid number > 0`);
+  }
+
+  // Required fields validation
+  if (!name || !brand || !model || !category || !performanceTier || !imageUrl) {
+    throw new Error(`Row ${index + 2}: missing required fields`);
+  }
+
+  return {
+    name,
+    brand,
+    model,
+    category,
+    performanceTier,
+    price,
+    imageUrl,
+    bestFor: row.bestFor
+      ? row.bestFor.split(",").map((x) => x.trim()).filter(Boolean)
+      : [],
+    specs: specsParsed,
   };
+};
 
   const parseCsvFile = (file) => {
     Papa.parse(file, {
@@ -68,12 +89,6 @@ export default function Admin() {
         results.data.forEach((row, index) => {
           try {
             const normalized = normalizeRow(row, index);
-
-            if (!normalized.name || !normalized.brand || !normalized.category) {
-              errors.push(`Row ${index + 2}: missing required fields`);
-              return;
-            }
-
             parsedRows.push(normalized);
           } catch (err) {
             errors.push(err.message);
@@ -117,43 +132,49 @@ export default function Admin() {
   };
 
   const handleUploadPreviewedCsv = async () => {
-    if (!csvRows.length) {
-      alert("No valid CSV rows to upload");
-      return;
+  if (!csvRows.length) {
+    toast.error("No valid CSV rows to upload");
+    return;
+  }
+
+  if (csvErrors.length) {
+    toast.error("Fix CSV errors before uploading");
+    return;
+  }
+
+  try {
+    setUploadingCsv(true);
+
+    const res = await fetch(`${API_URL}/upload-csv`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        role: "admin",
+      },
+      body: JSON.stringify({ components: csvRows }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Upload failed");
     }
 
-    try {
-      setUploadingCsv(true);
+    toast.success(`Uploaded ${data.insertedCount} components`);
 
-      const res = await fetch(`${API_URL}/upload-csv`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "role": "admin"
-        },
-        body: JSON.stringify({ components: csvRows }),
-      });
+    setCsvRows([]);
+    setCsvErrors([]);
 
-      const data = await res.json();
+    const fresh = await fetch(`${API_URL}/components`);
+    const freshData = await fresh.json();
+    setComponents(freshData);
 
-      if (!res.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
-
-      alert(`Uploaded ${data.insertedCount} components successfully`);
-
-      setCsvRows([]);
-      setCsvErrors([]);
-
-      const fresh = await fetch(`${API_URL}/components`);
-      const freshData = await fresh.json();
-      setComponents(freshData);
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setUploadingCsv(false);
-    }
-  };
+  } catch (err) {
+    toast.error(err.message);
+  } finally {
+    setUploadingCsv(false);
+  }
+};
 
   //Get Components API
   useEffect(() => {
@@ -190,41 +211,70 @@ export default function Admin() {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  let specsParsed;
+  if (
+    !form.name.trim() ||
+    !form.brand.trim() ||
+    !form.model.trim() ||
+    !form.category ||
+    !form.tier ||
+    !form.price ||
+    !form.imageUrl.trim()
+  ) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
+  const price = Number(form.price);
+  if (isNaN(price) || price <= 0) {
+    toast.error("Price must be greater than 0");
+    return;
+  }
+
+  let specsParsed;
   try {
-    specsParsed = JSON.parse(form.specs);
+    specsParsed = form.specs ? JSON.parse(form.specs) : {};
   } catch {
-    alert("Specs must be valid JSON");
+    toast.error("Specs must be valid JSON");
     return;
   }
 
   const newComponent = {
     id: Date.now().toString(),
-    name: form.name,
-    brand: form.brand,
-    model: form.model,
+    name: form.name.trim(),
+    brand: form.brand.trim(),
+    model: form.model.trim(),
     category: form.category,
     performanceTier: form.tier,
-    price: Number(form.price),
-    imageUrl: form.imageUrl,
-    bestFor: form.bestFor.split(",").map(x => x.trim()),
-    specs: specsParsed
+    price,
+    imageUrl: form.imageUrl.trim(),
+    bestFor: form.bestFor
+      ? form.bestFor.split(",").map((x) => x.trim()).filter(Boolean)
+      : [],
+    specs: specsParsed,
   };
 
-  const res = await fetch(`${API_URL}/components`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "role": "admin"
-    },
-    body: JSON.stringify(newComponent)
-  });
+  try {
+    const res = await fetch(`${API_URL}/components`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        role: "admin",
+      },
+      body: JSON.stringify(newComponent),
+    });
 
-  const data = await res.json();
-  console.log(data);
+    const data = await res.json();
 
-  window.location.reload();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to add component");
+    }
+
+    toast.success("Component added successfully");
+
+    window.location.reload();
+  } catch (err) {
+    toast.error(err.message);
+  }
 };
 
   //API Delete Component
@@ -242,29 +292,35 @@ export default function Admin() {
   };
 
     const updatePrice = async (comp) => {
+  const price = Number(comp.price);
+
+  if (isNaN(price) || price <= 0) {
+    toast.error("Price must be greater than 0");
+    return;
+  }
+
   try {
     const res = await fetch(`${API_URL}/update-price`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-          "role": "admin"
+        role: "admin",
       },
       body: JSON.stringify({
         id: comp.id,
-        price: Number(comp.price),
+        price,
       }),
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      alert("Price updated successfully");
+      toast.success("Price updated successfully");
     } else {
-      alert(data.error || "Update failed");
+      toast.error(data.error || "Update failed");
     }
   } catch (err) {
-    console.error(err);
-    alert("Server error");
+    toast.error("Server error");
   }
 };
 
@@ -334,17 +390,17 @@ const handleSignOut = () => {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
 
-            <input name="name" onChange={handleChange}
+            <input name="name" required onChange={handleChange}
               placeholder="GPU"
               className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
             <div className="grid grid-cols-2 gap-3">
 
-              <input name="brand" onChange={handleChange}
+              <input name="brand" required onChange={handleChange}
                 placeholder="Brand eg.NVIDIA"
                 className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
-              <input name="model" onChange={handleChange}
+              <input name="model" required onChange={handleChange}
                 placeholder="Model"
                 className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
@@ -352,7 +408,7 @@ const handleSignOut = () => {
 
             <div className="grid grid-cols-2 gap-3">
 
-              <select name="category" onChange={handleChange}
+              <select name="category" required onChange={handleChange}
                 className="bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2">
 
                 <option value="cpu">CPU</option>
@@ -378,11 +434,11 @@ const handleSignOut = () => {
 
             </div>
 
-            <input name="price" type="number" onChange={handleChange}
+            <input name="price" required min ="1" type="number" onChange={handleChange}
               placeholder="Price"
               className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
-            <input name="imageUrl" onChange={handleChange}
+            <input name="imageUrl" required onChange={handleChange}
               placeholder="https://image-url"
               className="w-full bg-[#1a1a1a] border border-[#333] rounded-lg px-3 py-2"/>
 
