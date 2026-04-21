@@ -33,39 +33,44 @@ export default function Prices() {
     return trend.latest <= trend.lowest * 1.05;
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch(`${API_URL}/components`, {
-        headers: { "role": "admin" }
-      });
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`${API_URL}/components`);
       const data = await res.json();
+      
+      // show instantly
+      setComponents(data);
 
-      const withHistory = await Promise.all(
-        data.map(async (comp) => {
-          try {
-            const histRes = await fetch(
-              `${API_URL}/price-history/${comp.id}`,
-              { headers: { "role": "admin" } }  
-            );
-            const history = await histRes.json();
-
-            return {
-              ...comp,
-              history,
-              trend: calculateTrend(history)
-            };
-          } catch {
-            return { ...comp, history: [], trend: null };
-          }
+      // fetch history in background
+      data.slice(0, 6).forEach((comp) => {
+        fetch(`${API_URL}/price-history/${comp.id}`, {
+          headers: { role: "admin" }
         })
-      );
+          .then(res => res.json())
+          .then(history => {
+            setComponents(prev =>
+              prev.map(item =>
+                item.id === comp.id
+                  ? {
+                      ...item,
+                      history,
+                      trend: calculateTrend(history)
+                    }
+                  : item
+              )
+            );
+          })
+          .catch(() => {});
+      });
 
-      withHistory.sort((a, b) => a.price - b.price);
-      setComponents(withHistory);
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    fetchData();
-  }, []);
+  fetchData();
+}, []);
 
   useEffect(() => {
     setCurrentPage(1);
