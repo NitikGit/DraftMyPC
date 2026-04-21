@@ -12,24 +12,21 @@ export default function Prices() {
   const itemsPerPage = 6;
 
   const calculateTrend = (history) => {
-  if (!history || history.length < 2) return null; // FIX HERE
+    if (!history || history.length < 1) return null;
 
-  const prices = history.map(h => Number(h.price));
-  const latest = prices[prices.length - 1];
-  const previous = prices[prices.length - 2];
+    const prices = history.map(h => Number(h.price));
+    const latest = prices[prices.length - 1];
+    const previous = prices[prices.length - 2];
+    const change = ((latest - previous) / previous) * 100;
 
-  if (!previous || previous === 0) return null;
-
-  const change = ((latest - previous) / previous) * 100;
-
-  return {
-    latest,
-    lowest: Math.min(...prices),
-    highest: Math.max(...prices),
-    change: Number(change.toFixed(1)),
-    prices
+    return {
+      latest,
+      lowest: Math.min(...prices),
+      highest: Math.max(...prices),
+      change: Number(change.toFixed(1)),
+      prices
+    };
   };
-};
 
   const isBestBuy = (trend) => {
     if (!trend) return false;
@@ -75,9 +72,9 @@ export default function Prices() {
   }, [search]);
 
   const filtered = components.filter(c =>
-  (c.name || "").toLowerCase().includes(search.toLowerCase()) ||
-  (c.brand || "").toLowerCase().includes(search.toLowerCase())
-);
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.brand.toLowerCase().includes(search.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
